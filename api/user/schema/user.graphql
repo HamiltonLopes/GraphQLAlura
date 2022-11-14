@@ -1,0 +1,11 @@
+const { gql } = require('apollo-server');
+
+const userSchema = gql`
+    type User {
+        nome: String! #! = notnull
+        ativo: Boolean!
+        email: String
+    }
+`;
+
+module.exports = userSchema;
