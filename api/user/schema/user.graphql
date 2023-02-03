@@ -8,6 +8,14 @@ const userSchema = gql`
         role: Role!
     }
 
+    type ReturnUser {
+        id: ID!
+        name: String!
+        active: Boolean!
+        email: String
+        role: Role!
+    }
+
     type Role{
         id: ID!
         type: String!
@@ -17,6 +25,21 @@ const userSchema = gql`
         users: [User]
         user(id: ID!): User
     }
+
+    type Mutation {
+        addUser(name: String!,
+        active: Boolean!,
+        email: String,
+        role: String!): ReturnUser
+
+        updateUser(id: ID!, name: String,
+        active: Boolean,
+        email: String,
+        role: String): User!
+
+        deleteUser(id: ID!): ID!
+    }
+
 `;
 
 module.exports = userSchema;

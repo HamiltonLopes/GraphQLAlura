@@ -41,6 +41,13 @@
       "active": true,
       "email": "m@m.com",
       "role": 2
+    },
+    {
+      "name": "Hamilton",
+      "active": true,
+      "email": "h@h.com",
+      "role": 1,
+      "id": 7
     }
   ],
   "roles": [
