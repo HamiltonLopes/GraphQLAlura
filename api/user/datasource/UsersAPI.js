@@ -6,6 +6,18 @@ class UsersAPI extends RESTDataSource {
 	constructor() {
 		super()
 		this.baseURL = 'http://localhost:3000'
+		this.badRequestResponse = {
+			code: 400,
+			message: 'Bad request',
+		}
+		this.internalErrorResponse = {
+			code: 500,
+			message: 'Internal server Error',
+		}
+		this.successResponse = {
+			code: 200,
+			message: 'Operation success',
+		}
 	}
 
 	async getUsers() {
@@ -21,12 +33,23 @@ class UsersAPI extends RESTDataSource {
 	}
 
 	async getUserById(id) {
-		const user = await this.get(`/users/${id}`)
-		user.role = await this.get(
-			`/roles/${user.role}`
-		)
+		try {
+			const user = await this.get(`/users/${id}`)
 
-		return user
+			user.role = await this.get(
+				`/roles/${user.role}`
+			)
+
+			return {
+				...this.successResponse,
+				user,
+			}
+		} catch (error) {
+			return {
+				...this.badRequestResponse,
+				user: null,
+			}
+		}
 	}
 
 	async addUser(user) {
@@ -35,29 +58,54 @@ class UsersAPI extends RESTDataSource {
 		const role = await this.get(
 			`roles?type=${user.role}`
 		)
-		user.role = role[0].id
-		await this.post('users', user)
 
-		return { ...user, role: role[0] }
+		user.role = role[0].id
+		try {
+			await this.post('users', user)
+		} catch (error) {
+			return {
+				...this.internalErrorResponse,
+				user: null,
+			}
+		}
+		return {
+			code: 201,
+			message: 'User was successfully added',
+			user: { ...user, role: role[0] },
+		}
 	}
 
 	async updateUser(user) {
-		const newRole = await this.get(
-			`/roles?type=${user.role}`
-		)
+		try {
+			const newRole = await this.get(
+				`/roles?type=${user.role}`
+			)
 
-		await this.put(`/users/${user.id}`, {
-			...user,
-			role: newRole[0].id,
-		})
+			await this.put(`/users/${user.id}`, {
+				...user,
+				role: newRole[0].id,
+			})
 
-		return { ...user, role: newRole[0] }
+			return {
+				...this.successResponse,
+				user: { ...user, role: newRole[0] },
+			}
+		} catch (error) {
+			return {
+				...this.badRequestResponse,
+				user: null,
+			}
+		}
 	}
 
 	async deleteUser(id) {
-		await this.delete(`/users/${id}`)
+		try {
+			await this.delete(`/users/${id}`)
 
-		return id
+			return this.successResponse
+		} catch (error) {
+			return this.badRequestResponse
+		}
 	}
 }
 

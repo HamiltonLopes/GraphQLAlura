@@ -1,4 +1,20 @@
+const { GraphQLScalarType } = require('graphql')
+
 const userResolvers = {
+	RolesType: {
+		ESTUDANTE: 'ESTUDANTE',
+		DOCENTE: 'DOCENTE',
+		COORDENACAO: 'COORDENACAO'
+	},
+
+	DateTime: new GraphQLScalarType({
+		name: 'DateTime',
+		description: 'Date string with date and hour on ISO-8601 format',
+		serialize: (value) => value.toISOString(),
+		parseValue: (value) => new Date(value),
+		parseLiteral: (ast) => new Date(ast.value)
+	}),
+
 	Query: {
 		users: (
 			_root,
@@ -15,7 +31,7 @@ const userResolvers = {
 	Mutation: {
 		addUser: (
 			_root,
-			user,
+			{ user },
 			{ dataSources: { usersAPI } }
 		) => usersAPI.addUser(user),
 
@@ -23,7 +39,7 @@ const userResolvers = {
 			_root,
 			user,
 			{ dataSources: { usersAPI } }
-		) => usersAPI.updateUser(user),
+		) => usersAPI.updateUser({ id: user.id, ...user.user }),
 
 		deleteUser: (
 			_root,
